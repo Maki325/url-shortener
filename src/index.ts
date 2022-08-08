@@ -2,12 +2,17 @@ import express from 'express';
 import qs from 'qs';
 import fs from 'fs';
 
-const app = express();
-const port = 3000;
+type Routes = {[key: string]: string};
+
+type Config = {
+  port: number;
+  routes: Routes;
+  defaultRoute?: string;
+}
 
 const readJsonFile = (path: string, exitOnError: boolean = false): any => {
   try {
-    return JSON.parse(fs.readFileSync(ROUTES_PATH).toString());
+    return JSON.parse(fs.readFileSync(path).toString());
   } catch(err) {
     if(exitOnError) {
       return {};
@@ -17,8 +22,20 @@ const readJsonFile = (path: string, exitOnError: boolean = false): any => {
   }
 }
 
-const ROUTES_PATH = './routes.json';
-let ROUTES = readJsonFile(ROUTES_PATH);
+const getConfig = (path: string): Config => {
+  let config = readJsonFile(path);
+  if(!config.port) {
+    throw "Config needs to have a `port` field!";
+  }
+  if(!config.routes) {
+    throw "Config needs to have a `routes` field!";
+  }
+
+  return config;
+}
+
+const CONFIG_PATH = './config.json';
+const config = getConfig(CONFIG_PATH);
 
 const LOG_PATH = './log.json';
 
@@ -37,9 +54,7 @@ const log = (path: string, ip: string | string[], query: Query, addRequest: bool
   let from = null;
   if(query.from && typeof query.from === 'string') { 
     from = query.from;
-    console.log({log, path, from});
     log[path].from[from] = (log[path].from[from] || 0) + 1;
-    console.log({newLog: log}); 
   }
 
   if(addRequest) {
@@ -53,30 +68,34 @@ const log = (path: string, ip: string | string[], query: Query, addRequest: bool
   fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
 }
 
-app.get('*', (req, res) => {
-  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
-  console.log(req.subdomains);
-  console.log('req.path: ', req.path);
-  const path = req.path === '/' || req.path.length === 0 ?
-    req.subdomains.join('.') : req.path.substring(1);
-  const route = ROUTES[path];
-  console.log({path, route});
-  if(!route) {
-    return res.send('No route!');
-  }
-  let routeQuery = route.split("?")[1];
-  console.log({routeQuery});
-  log(path, ip, req.query);
-  if(routeQuery) {
-    log(path, ip, qs.parse(routeQuery), false);
-  } 
+async function run() {
+  const app = express();
 
-  res.location(route);
-  res.redirect(301, route);
-  res.end();
-});
+  app.get('*', (req, res) => {
+    let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+    const path = req.path === '/' || req.path.length === 0 ?
+      req.subdomains.join('.') : req.path.substring(1);
+    let route = config.routes[path];
+    if(!route) {
+      if(!config.defaultRoute) {
+        return res.send('No route!');  
+      }
+      route = config.defaultRoute;
+    }
+    let routeQuery = route.split("?")[1];
+    log(path, ip, req.query);
+    if(routeQuery) {
+      log(path, ip, qs.parse(routeQuery), false);
+    } 
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-});
+    res.location(route);
+    res.redirect(301, route);
+    res.end();
+  });
+
+  app.listen(config.port, () => {
+    console.log(`URL shortener app is listening on port ${config.port}`)
+  });
+}
+run();
 
