@@ -1,0 +1,38 @@
+.links {
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar {
+  height: calc(100% - var(--navbar-height));
+  width: var(--sidebar-width);
+  top: var(--navbar-height);
+  position: fixed;
+  overflow-x: auto;
+  overflow-y: auto;
+  text-align: justify;
+  background-color: black;
+  margin: 0;
+  padding: 10px;
+  padding-left: 20px;
+  scrollbar-width: thin;
+}
+
+.sidebar > li {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.links > .content {
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex: 1;
+}
+
+.selected {
+  background-color: #888888;
+}

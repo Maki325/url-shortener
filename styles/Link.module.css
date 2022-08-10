@@ -1,0 +1,13 @@
+.content {
+  margin: 50px;
+  display: flex;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  flex-direction: column;
+  align-items: center;
+}
+
+.graph {
+  margin-top: 50px;
+  width: calc((100% - var(--sidebar-width) * 0.8));
+}

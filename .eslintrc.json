@@ -1,0 +1,15 @@
+{
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "@react-native-community",
+    "prettier"
+  ],
+  "rules": {
+    "indent": ["error", 2, {"SwitchCase": 1}],
+    // I suggest you add those two rules:
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "error"
+  }
+}

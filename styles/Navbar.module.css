@@ -1,0 +1,30 @@
+.navbar {
+  width: 100vw;
+  height: var(--navbar-height);
+  padding: 10px;
+  margin: 0;
+  background-color: black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: fixed;
+}
+
+.navbar-nonsticky {
+  width: 100vw;
+  height: var(--navbar-height);
+  padding: 10px;
+  margin: 0;
+  background-color: black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.navbar > * {
+  margin-left: 30px;
+}
+
+.navbar-name {
+  margin-left: 30px;
+}
